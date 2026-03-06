@@ -17,7 +17,7 @@ public class UserResource {
 
     @GET
     @Path("/{id}")
-    public User byId(@PathParam("id") Long id) {
+    public User byId(@PathParam("id") Integer id) {
         User u = User.findById(id);
         if (u == null) throw new NotFoundException();
         return u;
@@ -29,14 +29,18 @@ public class UserResource {
         if (User.find("email", dto.email).firstResult() != null) {
             throw new BadRequestException("User with email already exists");
         }
-        dto.persist();
-        return dto;
+        // Avoid passing a potentially detached entity to persist.
+        User u = new User();
+        u.name = dto.name;
+        u.email = dto.email;
+        u.persist();
+        return u;
     }
 
     @PUT
     @Path("/{id}")
     @Transactional
-    public User update(@PathParam("id") Long id, User dto) {
+    public User update(@PathParam("id") Integer id, User dto) {
         User u = User.findById(id);
         if (u == null) throw new NotFoundException();
         u.name = dto.name;
@@ -47,7 +51,7 @@ public class UserResource {
     @DELETE
     @Path("/{id}")
     @Transactional
-    public void delete(@PathParam("id") Long id) {
+    public void delete(@PathParam("id") Integer id) {
         if (!User.deleteById(id)) throw new NotFoundException();
     }
 
