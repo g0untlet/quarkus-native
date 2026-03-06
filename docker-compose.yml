@@ -1,0 +1,68 @@
+# Docker Compose configuration for Quarkus Native + Angular Full Stack
+# 
+# Prerequisites: Build the native Docker image first:
+#   cd quarkus
+#   ./mvnw -Pnative -Dquarkus.native.container-build=true -Dquarkus.container-image.build=true -Dquarkus.container-image.name=quarkus-native-users -Dquarkus.container-image.tag=latest clean package
+#
+# Then start services: docker-compose up -d
+
+services:
+  mariadb:
+    image: mariadb:12
+    container_name: quarkus-mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: userdb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  app:
+    image: quarkus-native-users:latest
+    container_name: quarkus-app
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:mariadb://mariadb:3306/userdb
+      QUARKUS_DATASOURCE_USERNAME: appuser
+      QUARKUS_DATASOURCE_PASSWORD: apppassword
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 64m
+
+  frontend:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    container_name: quarkus-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - app
+    environment:
+      - API_URL=http://app:8080
+    networks:
+      - app-network
+
+volumes:
+  mariadb_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

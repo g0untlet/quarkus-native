@@ -1,0 +1,28 @@
+name: Native Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  native:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./quarkus
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'
+          distribution: 'graalvm-community'
+          native-image-job-reports: 'true'
+
+      - name: Build native
+        run: mvn clean package -Pnative -Dquarkus.native.native-image-xmx=6g
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-runner
+          path: quarkus/target/*-runner
