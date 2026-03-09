@@ -5,7 +5,20 @@ services:
     ports:
       - "8000:8080"
     environment:
-      QUARKUS_DATASOURCE_JDBC_URL: "jdbc:sqlite:/data/users.db?journal_mode=WAL&busy_timeout=5000"
+      QUARKUS_DATASOURCE_JDBC_URL: "jdbc:sqlite:/data/users.db?journal_mode=WAL&busy_timeout=5000" 
+      QUARKUS_FLYWAY_ENABLED: "false" 
+      QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION: "update" 
     volumes:
       - ./data:/data
     restart: unless-stopped
+
+
+### Prior to container startup 
+# mkdir -p data
+# sudo chown 1001:1001 data
+
+### API for testing
+# curl -X GET http://localhost:8080/api/users   -H 'Content-Type: application/json'
+# curl -X POST http://localhost:8000/api/users   -H 'Content-Type: application/json'   -d '{"name":"paul","email":"paul@g0untlet.net"}' 
+# curl -X GET http://localhost:8000/api/users/count   -H 'Content-Type: application/json' 
+# curl -X DELETE http://localhost:8000/api/users/1   -H 'Content-Type: application/json'
