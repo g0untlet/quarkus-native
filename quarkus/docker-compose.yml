@@ -1,32 +1,11 @@
 services:
-  app:
-    image: quarkus-native-users
-    container_name: quarkus-app
-    environment:
-      # Host folder where the SQLite file will be stored (configurable)
-      SQLITE_HOST_PATH: ${SQLITE_HOST_PATH:-./data}
-      # Path inside container to the SQLite DB file
-      SQLITE_DB_PATH: ${SQLITE_DB_PATH:-/data/users.db}
-      # Quarkus datasource URL pointing to the SQLite file
-      QUARKUS_DATASOURCE_JDBC_URL: jdbc:sqlite:${SQLITE_DB_PATH:-/data/users.db}
+  quarkus-native:
+    image: ghcr.io/g0untlet/quarkus-native:latest
+    container_name: quarkus-native
     ports:
-      - "8081:8080"
+      - "8000:8080"
+    environment:
+      QUARKUS_DATASOURCE_JDBC_URL: "jdbc:sqlite:/data/users.db?journal_mode=WAL&busy_timeout=5000"
     volumes:
-      # Mount the host folder (default ./data relative to quarkus/) into /data
-      - ${SQLITE_HOST_PATH:-./data}:/data
-    deploy:
-      resources:
-        limits:
-          memory: 64m
-
-  frontend:
-    build:
-      context: ../front
-      dockerfile: Dockerfile
-    container_name: frontend
-    ports:
-      - "4200:80"
-    depends_on:
-      - app
-    environment:
-      - API_URL=http://app:8081
+      - ./data:/data
+    restart: unless-stopped
