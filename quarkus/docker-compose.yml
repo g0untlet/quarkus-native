@@ -1,45 +1,26 @@
 services:
-  mariadb:
-    image: mariadb:12
-    container_name: quarkus-mariadb
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: userdb
-      MYSQL_USER: appuser
-      MYSQL_PASSWORD: apppassword
+  quarkus-native:
+    image: ghcr.io/g0untlet/quarkus-native:latest
+    container_name: quarkus-native
     ports:
-      - "3306:3306"
-    healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - "8000:8080"
+    environment:
+      QUARKUS_DATASOURCE_JDBC_URL: "jdbc:sqlite:/data/users.db?journal_mode=WAL&busy_timeout=5000" 
+      QUARKUS_FLYWAY_ENABLED: "false" 
+      QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION: "update" 
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
 
-  app:
-    image: quarkus-native-users
-    container_name: quarkus-app
-    depends_on:
-      mariadb:
-        condition: service_healthy
-    environment:
-      QUARKUS_DATASOURCE_JDBC_URL: jdbc:mariadb://mariadb:3306/userdb
-      QUARKUS_DATASOURCE_USERNAME: appuser
-      QUARKUS_DATASOURCE_PASSWORD: apppassword
-    ports:
-      - "8081:8080"
-    deploy:
-      resources:
-        limits:
-          memory: 64m
 
-  frontend:
-    build:
-      context: ../front
-      dockerfile: Dockerfile
-    container_name: frontend
-    ports:
-      - "4200:80"
-    depends_on:
-      - app
-    environment:
-      - API_URL=http://quarkus:8081        
+### Prior to container startup 
+# mkdir -p data
+# sudo chown 1001:1001 data
+
+### API for testing
+# curl -X GET http://localhost:8000/api/users   -H 'Content-Type: application/json'
+# curl -X POST http://localhost:8000/api/users   -H 'Content-Type: application/json'   -d '{"name":"paul","email":"paul@g0untlet.net"}' 
+# curl -X GET http://localhost:8000/api/users/1   -H 'Content-Type: application/json' 
+# curl -X GET http://localhost:8000/api/users/count   -H 'Content-Type: application/json' 
+# curl -X PUT 'http://192.168.178.88:8000/api/users/1' -H 'Content-Type: application/json' -d '{"id":1,"name":"peter","email":"peter@g0untlet.net"}'
+# curl -X DELETE http://localhost:8000/api/users/1   -H 'Content-Type: application/json'

@@ -2,6 +2,10 @@ name: Native Build
 
 on:
   workflow_dispatch:
+ 
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   native:
@@ -16,13 +20,54 @@ jobs:
         with:
           java-version: '21'
           distribution: 'graalvm-community'
-          native-image-job-reports: 'true'
 
       - name: Build native
-        run: mvn clean package -Pnative -Dquarkus.native.native-image-xmx=6g
+        run: mvn clean package -Pnative -Dquarkus.native.native-image-xmx=6g -Dquarkus.native.additional-build-args="-march=compatibility"
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
           name: native-runner
           path: quarkus/target/*-runner
+
+  docker-push:
+    needs: native
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./quarkus
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sanitize ref name for Docker tag
+        id: sanitize
+        run: |
+          if [ -z "${GITHUB_REF_NAME}" ]; then
+            echo "IMAGE_TAG=unknown" >> $GITHUB_ENV
+          else
+            sanitized=${GITHUB_REF_NAME//\//-}
+            echo "IMAGE_TAG=$sanitized" >> $GITHUB_ENV
+          fi
+
+      - name: Download native runner artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: native-runner
+          path: quarkus/target
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./quarkus
+          file: ./quarkus/src/main/docker/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
