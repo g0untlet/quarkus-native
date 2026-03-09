@@ -22,7 +22,7 @@ jobs:
           distribution: 'graalvm-community'
 
       - name: Build native
-        run: mvn clean package -Pnative -Dquarkus.native.native-image-xmx=6g
+        run: mvn clean package -Pnative -Dquarkus.native.native-image-xmx=6g -Dquarkus.native.additional-build-args="-march=compatibility"
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
