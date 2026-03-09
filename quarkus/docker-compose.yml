@@ -18,7 +18,9 @@ services:
 # sudo chown 1001:1001 data
 
 ### API for testing
-# curl -X GET http://localhost:8080/api/users   -H 'Content-Type: application/json'
+# curl -X GET http://localhost:8000/api/users   -H 'Content-Type: application/json'
 # curl -X POST http://localhost:8000/api/users   -H 'Content-Type: application/json'   -d '{"name":"paul","email":"paul@g0untlet.net"}' 
+# curl -X GET http://localhost:8000/api/users/1   -H 'Content-Type: application/json' 
 # curl -X GET http://localhost:8000/api/users/count   -H 'Content-Type: application/json' 
+# curl -X PUT 'http://192.168.178.88:8000/api/users/1' -H 'Content-Type: application/json' -d '{"id":1,"name":"peter","email":"peter@g0untlet.net"}'
 # curl -X DELETE http://localhost:8000/api/users/1   -H 'Content-Type: application/json'
