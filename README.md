@@ -1,6 +1,3 @@
-All credits go to https://dev.to/issam1991/crafting-high-performance-full-stack-applications-quarkus-native-and-angular-2eif 
-
-
 # Native Quarkus + Angular User Management System
 
 A full-stack web application demonstrating modern Java development with Quarkus Native Image compilation and Angular frontend. This project showcases a complete user management system with REST API, database integration, and a responsive web interface.
@@ -25,11 +22,11 @@ A full-stack web application demonstrating modern Java development with Quarkus 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌──────────────────────────┐
-│   Angular 20+   │    │    Quarkus 3    │    │    SQLite (file)         │
-│   Frontend      │◄──►│   Native Image  │◄──►│    Database              │
+┌─────────────────┐    ┌─────────────────┐    ┌───────────────────────────────────┐
+│   Angular 20+   │    │    Quarkus 3    │    │    SQLite (file)                  │
+│   Frontend      │◄──►│   Native Image  │◄──►│    Database                       │
 │   (Port 4200)   │    │   (Port 8080)   │    │   (file: ./quarkus/data/users.db) │
-└─────────────────┘    └─────────────────┘    └──────────────────────────┘
+└─────────────────┘    └─────────────────┘    └───────────────────────────────────┘
 ```
 
 ## 🛠️ Technology Stack
@@ -66,8 +63,8 @@ A full-stack web application demonstrating modern Java development with Quarkus 
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/issam1991/quarkus-native-angular-sample
-cd quarkus-native-angular-sample
+git clone https://github.com/g0untlet/quarkus-native 
+cd quarkus-native 
 ```
 
 ### 2. Database (SQLite)
@@ -76,8 +73,10 @@ This project uses SQLite as an embedded, file-based database by default. No sepa
 
 If you prefer to run a MariaDB container instead, you can start it with Docker Compose (optional):
 
+Prior to container startup 
 ```bash
-docker-compose up mariadb -d
+mkdir -p data
+sudo chown 1001:1001 data
 ```
 
 ### 3. Build and Run Backend
@@ -106,8 +105,8 @@ npm start
 
 ### 5. Access the Application
 - **Frontend**: http://localhost:4200
-- **Backend API**: http://localhost:8080
-- **API Documentation**: http://localhost:8080/q/swagger-ui
+- **Backend API**: http://localhost:8000
+- **API Documentation**: http://localhost:8000/q/swagger-ui
 
 ## 🐳 Docker Deployment
 
@@ -159,15 +158,15 @@ Note: The application uses SQLite by default; no DB container is needed.
 
 ```bash
 # Create a user
-curl -X POST http://localhost:8080/api/users \
+curl -X POST http://localhost:8000/api/users \
   -H "Content-Type: application/json" \
   -d '{"name": "John Doe", "email": "john@example.com"}'
 
 # Get all users
-curl http://localhost:8080/api/users
+curl http://localhost:8000/api/users
 
 # Update a user
-curl -X PUT http://localhost:8080/api/users/1 \
+curl -X PUT http://localhost:8000/api/users/1 \
   -H "Content-Type: application/json" \
   -d '{"name": "Jane Doe", "email": "jane@example.com"}'
 ```
@@ -189,9 +188,9 @@ CREATE TABLE users (
 - Docker environment variables in `docker-compose.yml`
 
 ### Environment Variables
-- `QUARKUS_DATASOURCE_JDBC_URL`: Database connection URL
-- `QUARKUS_DATASOURCE_USERNAME`: Database username
-- `QUARKUS_DATASOURCE_PASSWORD`: Database password
+- `QUARKUS_DATASOURCE_JDBC_URL`: "jdbc:sqlite:/data/users.db?journal_mode=WAL&busy_timeout=5000" 
+- `QUARKUS_FLYWAY_ENABLED`: "false" 
+- `QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION`: "update" 
 
 ## 🧪 Testing
 
@@ -250,46 +249,14 @@ npm run build
 npm run serve:ssr:user-management
 ```
 
-## 🚀 Performance Benefits
-
-### Native Image Advantages
-- **Ultra-fast startup**: ~50ms vs ~3-5 seconds for JVM
-- **Lower memory footprint**: ~50MB vs ~200MB+ for JVM
-- **Better resource utilization**: Optimized for cloud deployments
-- **Instant scaling**: Perfect for serverless and microservices
-
-## 🔍 Monitoring and Observability
-
-- **Health Checks**: Built-in Quarkus health endpoints
-- **API Documentation**: Interactive Swagger UI at `/q/swagger-ui`
-- **Database Monitoring**: Connection pool metrics
-- **Logging**: Structured logging with configurable levels
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
+- All credits go to https://dev.to/issam1991/crafting-high-performance-full-stack-applications-quarkus-native-and-angular-2eif 
 - Quarkus team for the excellent framework
 - Angular team for the modern frontend framework
 - GraalVM team for native image compilation
 - SQLite project for the lightweight file-based database
-
-## 📞 Support
-
-If you have any questions or need help, please:
-- Open an issue on GitHub
-- Check the documentation
-- Review the API documentation at `/q/swagger-ui`
 
 ---
 
