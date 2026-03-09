@@ -1,7 +1,7 @@
 # This Dockerfile expects a native executable built at target/*-runner
 # It uses a minimal UBI image optimized for native binaries
 
-FROM quay.io/quarkus/quarkus-micro-image:2.0
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.4 
 WORKDIR /work/
 RUN chown 1001 /work \
     && chmod "g+rwX" /work \
