@@ -10,7 +10,7 @@ A full-stack web application demonstrating modern Java development with Quarkus 
 ### Backend (Quarkus Native)
 - **Native Image Compilation**: Ultra-fast startup times with GraalVM native image
 - **RESTful API**: Complete CRUD operations for user management
-- **Database Integration**: MariaDB with Hibernate ORM Panache
+- **Database Integration**: SQLite (file-based) with Hibernate ORM Panache
 - **API Documentation**: OpenAPI 3.0 / Swagger UI integration
 - **Docker Support**: Containerized deployment with Docker Compose
 - **CORS Configuration**: Cross-origin resource sharing enabled
@@ -25,11 +25,11 @@ A full-stack web application demonstrating modern Java development with Quarkus 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Angular 20+   │    │    Quarkus 3    │    │    MariaDB      │
-│   Frontend      │◄──►│   Native Image  │◄──►│    Database     │
-│   (Port 4200)   │    │   (Port 8080)   │    │   (Port 3306)   │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+┌─────────────────┐    ┌─────────────────┐    ┌──────────────────────────┐
+│   Angular 20+   │    │    Quarkus 3    │    │    SQLite (file)         │
+│   Frontend      │◄──►│   Native Image  │◄──►│    Database              │
+│   (Port 4200)   │    │   (Port 8080)   │    │   (file: ./quarkus/data/users.db) │
+└─────────────────┘    └─────────────────┘    └──────────────────────────┘
 ```
 
 ## 🛠️ Technology Stack
@@ -38,7 +38,7 @@ A full-stack web application demonstrating modern Java development with Quarkus 
 - **Java 21** - Latest LTS version
 - **Quarkus 3.15.1** - Supersonic Subatomic Java framework
 - **Hibernate ORM Panache** - Simplified data access
-- **MariaDB** - Relational database
+- **SQLite** - Embedded file-based relational database
 - **GraalVM Native Image** - Native compilation
 - **SmallRye OpenAPI** - API documentation
 - **Maven** - Build tool
@@ -70,7 +70,12 @@ git clone https://github.com/issam1991/quarkus-native-angular-sample
 cd quarkus-native-angular-sample
 ```
 
-### 2. Start the Database
+### 2. Database (SQLite)
+
+This project uses SQLite as an embedded, file-based database by default. No separate database container is required — the database file is created at `quarkus/data/users.db` when the application runs.
+
+If you prefer to run a MariaDB container instead, you can start it with Docker Compose (optional):
+
 ```bash
 docker-compose up mariadb -d
 ```
@@ -132,9 +137,10 @@ docker-compose up -d
 ```
 
 This will start:
-- MariaDB database on port 3306
 - Quarkus native application on port 8080
 - Frontend on port 4200
+
+Note: The application uses SQLite by default; no DB container is needed.
 
 **Note:** The `docker-compose.yml` expects the Docker image `quarkus-native-users:latest` to be available. Make sure you build it first using one of the methods above.
 
@@ -166,13 +172,13 @@ curl -X PUT http://localhost:8080/api/users/1 \
   -d '{"name": "Jane Doe", "email": "jane@example.com"}'
 ```
 
-## 🗄️ Database Schema
+## 🗄️ Database Schema (SQLite)
 
 ```sql
 CREATE TABLE users (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE
 );
 ```
 
@@ -276,7 +282,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Quarkus team for the excellent framework
 - Angular team for the modern frontend framework
 - GraalVM team for native image compilation
-- MariaDB team for the reliable database
+- SQLite project for the lightweight file-based database
 
 ## 📞 Support
 

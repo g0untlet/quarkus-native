@@ -1,8 +1,9 @@
-package com.example.user;
+package net.gauntlet.user;
 
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+
 import java.util.List;
 
 @Path("/api/users")

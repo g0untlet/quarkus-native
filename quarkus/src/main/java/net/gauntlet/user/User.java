@@ -1,4 +1,4 @@
-package com.example.user;
+package net.gauntlet.user;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
